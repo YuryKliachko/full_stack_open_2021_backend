@@ -1,9 +1,17 @@
-import express from 'express';
+import cors from 'cors'
+import express from 'express'
+import morgan from 'morgan'
 import Person from './interfaces'
 
 const app = express();
 const port = 3001;
+
+app.use(cors())
 app.use(express.json())
+morgan.token('body', (req: express.Request) => {
+  return JSON.stringify(req.body)
+})
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
 let persons: Person[] = [
   {
