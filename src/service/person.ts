@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import Person from '../interfaces'
 import { InvalidPersonId } from '../errors';
+var uniqueValidator = require('mongoose-unique-validator');
 
 mongoose.set('toJSON', {
     virtuals: true,
@@ -10,9 +11,11 @@ mongoose.set('toJSON', {
 });
 
 const schema = new mongoose.Schema<Person>({
-    name: { type: String, required: true },
-    number: { type: String, required: true },
+    name: { type: String, required: true, unique: true, minlength: 3 },
+    number: { type: String, required: true, minlength: 8 },
 }, {collection: 'persons'})
+
+schema.plugin(uniqueValidator)
 
 const PersonModel = mongoose.model<Person>('Person', schema);
 
@@ -48,7 +51,7 @@ const upsertPerson = async (person: Person): Promise<Person> => {
     const query = {_id: person.id || new mongoose.mongo.ObjectId()}
     const update = {...person}
     delete update.id
-    const options = {upsert: true, new: true, setDefaultsOnInsert: true }
+    const options = {upsert: true, new: true, setDefaultsOnInsert: true, runValidators: true }
     const updatedPerson = await PersonModel.findOneAndUpdate(query, update, options)
     return updatedPerson
 }

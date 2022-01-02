@@ -57,44 +57,24 @@ app.delete('/api/persons/:id', async (request: express.Request, resposne: expres
 });
 
 app.post('/api/persons', async (request: express.Request, resposne: express.Response) => {
-  let validationError = ''
-  const personName = request.body.name
-  const personNumber = request.body.number
-
-  if (!personName) {
-    validationError = 'New person must have name\n'
-  } else {
-    const existingPerson = await personService.getByName(personName)
-    if (existingPerson) {
-      validationError = validationError.concat(`Person with name ${personName} already exists in phonebook\n`)
-    }
+  try {
+    const addedPerson = await personService.upsertPerson({...request.body})
+    resposne.status(201).send(`Person ${addedPerson.name} successfully added to the phonebook`)
+  } catch (error) {
+    console.log(error)
+    return resposne.status(400).send(error.message)
   }
-  if (!personNumber) {
-    validationError = validationError.concat('New person must have number')
-  }
-  if (validationError) {
-    return resposne.status(400).send(validationError)
-  }
-  await personService.upsertPerson({...request.body})
-  resposne.status(201).send(`Person ${personName} successfully added to the phonebook`)
 });
 
 app.put('/api/persons/:id', async (request: express.Request, resposne: express.Response) => {
-  let validationError = ''
-  const personName = request.body.name
-  const personNumber = request.body.number
+  try {
+    const updatedPerson = await personService.upsertPerson({...request.body, id: request.params.id})
+    resposne.status(200).send(`Data for person ${updatedPerson.name} successfully updated`)
+  } catch (error) {
+    console.log(error)
+    return resposne.status(400).send(error.message)
+  }
 
-  if (!personName) {
-    validationError = 'New person must have name\n'
-  }
-  if (!personNumber) {
-    validationError = validationError.concat('New person must have number')
-  }
-  if (validationError) {
-    return resposne.status(400).send(validationError)
-  }
-  await personService.upsertPerson({...request.body, id: request.params.id})
-  resposne.status(200).send(`Data for person ${personName} successfully updated`)
 });
 
 app.get('/info', async (_: express.Request, resposne: express.Response) => {
