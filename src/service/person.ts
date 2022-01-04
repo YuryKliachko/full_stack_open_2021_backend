@@ -61,6 +61,7 @@ const getPersonsCount = async () => {
 }
 
 const createClient = () => {
+    console.log('Setting up mongoose client ...')
     const CLIENT_ID = process.env.MONGOATLAS_CLIENT_ID
     const CLIENT_SECRET = process.env.MONGOATLAS_CLIENT_SECRET
     if (!CLIENT_ID) {
